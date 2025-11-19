@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
@@ -18,21 +19,24 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String username = 'Pengguna Apex';
+  String? profileImagePath; // FOTO DINAMIS
 
   @override
   void initState() {
     super.initState();
-    _loadUsername();
+    _loadUserData();
   }
 
-  Future<void> _loadUsername() async {
+  Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+
     final name = prefs.getString('username') ?? 'Pengguna Apex';
-    if (mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() => username = name);
-      });
-    }
+    final image = prefs.getString('profileImage'); // PATH FOTO
+
+    setState(() {
+      username = name;
+      profileImagePath = image;
+    });
   }
 
   Future<void> _logout() async {
@@ -120,9 +124,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             UserAccountsDrawerHeader(
               accountName: Text(username),
-              accountEmail: const Text("irham.ferdiansyah26@gmail.com"),
-              currentAccountPicture: const CircleAvatar(
-                backgroundImage: AssetImage('assets/images/aku.jpg'),
+              accountEmail: const Text(""),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: profileImagePath != null
+                    ? FileImage(File(profileImagePath!)) as ImageProvider
+                    : const AssetImage('assets/images/aku.jpg'),
               ),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -134,15 +140,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.person, color: Colors.white),
-              title: const Text("Profil Saya", style: TextStyle(color: Colors.white)),
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const ProfilePage())),
+              title: const Text("Profil Saya",
+                  style: TextStyle(color: Colors.white)),
+              onTap: () async {
+                await Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => const ProfilePage()));
+
+                // Kembali dari ProfilePage → refresh foto
+                _loadUserData();
+              },
             ),
             ListTile(
               leading: const Icon(Icons.message, color: Colors.white),
-              title: const Text("Kesan & Pesan", style: TextStyle(color: Colors.white)),
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const MessagePage())),
+              title: const Text("Kesan & Pesan",
+                  style: TextStyle(color: Colors.white)),
+              onTap: () => Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => const MessagePage())),
             ),
           ],
         ),

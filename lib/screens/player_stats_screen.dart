@@ -14,8 +14,8 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
   String _selectedPlatform = 'PC';
   Future<PlayerStatsModel>? _statsFuture;
 
-  final List<String> platforms = ['PC'];
-  String? _errorMessage; // untuk pesan kesalahan kecil tanpa snackbar
+  final List<String> platforms = ['PC', 'PS4', 'X1'];
+  String? _errorMessage; 
 
   void _searchStats() {
     final playerName = _playerController.text.trim();
@@ -40,7 +40,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E0E10), // 🎨 warna sama seperti dashboard
+      backgroundColor: const Color(0xFF0E0E10),
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
         title: const Text(
@@ -89,7 +89,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFF121214),
-                labelText: 'Username EA',
+                labelText: 'Username',
                 labelStyle: const TextStyle(color: Colors.white70),
                 prefixIcon: const Icon(Icons.person, color: Colors.redAccent),
                 enabledBorder: OutlineInputBorder(

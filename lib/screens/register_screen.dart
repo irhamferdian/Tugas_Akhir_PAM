@@ -85,9 +85,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             _userCtl, 'Username', Icons.person, false),
                         const SizedBox(height: 16),
                         _buildField(
-                            _emailCtl, 'Email', Icons.email, false),
-                        const SizedBox(height: 16),
-                        _buildField(
                             _passCtl, 'Password', Icons.lock, true),
                         const SizedBox(height: 24),
                         _isLoading
