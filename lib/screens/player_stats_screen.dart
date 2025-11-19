@@ -14,7 +14,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
   String _selectedPlatform = 'PC';
   Future<PlayerStatsModel>? _statsFuture;
 
-  final List<String> platforms = ['PC', 'PS4', 'X1', 'SWITCH'];
+  final List<String> platforms = ['PC'];
   String? _errorMessage; // untuk pesan kesalahan kecil tanpa snackbar
 
   void _searchStats() {
@@ -89,7 +89,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFF121214),
-                labelText: 'ID Pemain (Origin/PSN/Xbox)',
+                labelText: 'Username EA',
                 labelStyle: const TextStyle(color: Colors.white70),
                 prefixIcon: const Icon(Icons.person, color: Colors.redAccent),
                 enabledBorder: OutlineInputBorder(
