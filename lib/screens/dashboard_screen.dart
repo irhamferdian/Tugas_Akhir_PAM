@@ -19,7 +19,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String username = 'Pengguna Apex';
-  String? profileImagePath; // FOTO DINAMIS
+  String? profileImagePath;
 
   @override
   void initState() {
@@ -30,12 +30,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final name = prefs.getString('username') ?? 'Pengguna Apex';
-    final image = prefs.getString('profileImage'); // PATH FOTO
-
     setState(() {
-      username = name;
-      profileImagePath = image;
+      username = prefs.getString('username') ?? 'Pengguna Apex';
+      profileImagePath = prefs.getString('profile_image'); // KEY BENAR
     });
   }
 
@@ -127,7 +124,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               accountEmail: const Text(""),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: profileImagePath != null
-                    ? FileImage(File(profileImagePath!)) as ImageProvider
+                    ? FileImage(File(profileImagePath!))
                     : const AssetImage('assets/images/aku.jpg'),
               ),
               decoration: const BoxDecoration(
@@ -140,13 +137,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.person, color: Colors.white),
-              title: const Text("Profil Saya",
-                  style: TextStyle(color: Colors.white)),
+              title: const Text("Profil Saya", style: TextStyle(color: Colors.white)),
               onTap: () async {
                 await Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => const ProfilePage()));
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfilePage()),
+                );
 
-                // Kembali dari ProfilePage → refresh foto
+                // setelah kembali dari ProfilePage → refresh foto
                 _loadUserData();
               },
             ),
@@ -186,7 +184,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       color: Colors.redAccent.withOpacity(0.25),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ],
                 ),
                 child: Column(

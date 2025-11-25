@@ -146,7 +146,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 20),
 
                 const Text(
-                  "Irham Ferdiansyah",
+                  "-Irham Ferdiansyah-",
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -158,9 +158,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 const Divider(color: Colors.redAccent, thickness: 1),
                 const SizedBox(height: 12),
 
-                _buildInfoRow("NIM", "124230139"),
+                _buildInfoRow("NIM", "124230139",),
                 const SizedBox(height: 8),
-                _buildInfoRow("Tanggal Lahir", "16 Oktober 2004"),
+                _buildInfoRow("Tanggal Lahir", "16 Oktober 2004",),
                 const SizedBox(height: 8),
                 _buildInfoRow("Hobi", "Bermain game FPS Ranked PEaK",
                     isLongText: true),
