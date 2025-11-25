@@ -12,23 +12,29 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String? imagePath;
+  String username = 'guest'; // default sementara
 
   @override
   void initState() {
     super.initState();
-    _loadSavedImage();
+    _loadUserData();
   }
 
-  Future<void> _loadSavedImage() async {
+  // load username dan image berdasarkan username
+  Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedUsername = prefs.getString('username') ?? 'guest';
+    final savedImage = prefs.getString('profile_image_$savedUsername');
+
     setState(() {
-      imagePath = prefs.getString("profile_image");
+      username = savedUsername;
+      imagePath = savedImage;
     });
   }
 
+  // simpan image untuk username saat ini
   Future<void> _pickImage(bool fromCamera) async {
     final picker = ImagePicker();
-
     final picked = await picker.pickImage(
       source: fromCamera ? ImageSource.camera : ImageSource.gallery,
       imageQuality: 85,
@@ -36,11 +42,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (picked != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("profile_image", picked.path);
+      await prefs.setString('profile_image_$username', picked.path);
 
       setState(() {
         imagePath = picked.path;
       });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Foto profil berhasil diperbarui!")),
+      );
     }
   }
 
@@ -96,6 +106,18 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  // optional: tombol untuk menghapus foto akun ini (reset ke asset default)
+  Future<void> _removeProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('profile_image_$username');
+    setState(() {
+      imagePath = null;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Foto profil direset ke default")),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,7 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context, true),
+          onPressed: () => Navigator.pop(context, true), // return true supaya caller tau ada perubahan
         ),
       ),
       body: Center(
@@ -134,8 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     radius: 60,
                     backgroundImage: imagePath != null
                         ? FileImage(File(imagePath!))
-                        : const AssetImage('assets/images/aku.jpg')
-                            as ImageProvider,
+                        : const AssetImage('assets/images/apex.png') as ImageProvider,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -143,10 +164,28 @@ class _ProfilePageState extends State<ProfilePage> {
                   "(Tekan foto untuk mengganti)",
                   style: TextStyle(color: Colors.white70, fontSize: 12),
                 ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _showImageSourceDialog,
+                      icon: const Icon(Icons.edit),
+                      label: const Text("Ubah Foto"),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: _removeProfileImage,
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text("Reset Foto"),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
-
                 const Text(
-                  "-Irham Ferdiansyah-",
+                  "Irham Ferdiansyah",
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -157,14 +196,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 12),
                 const Divider(color: Colors.redAccent, thickness: 1),
                 const SizedBox(height: 12),
-
-                _buildInfoRow("NIM", "124230139",),
+                _buildInfoRow("NIM", "124230139"),
                 const SizedBox(height: 8),
-                _buildInfoRow("Tanggal Lahir", "16 Oktober 2004",),
+                _buildInfoRow("Tanggal Lahir", "16 Oktober 2004"),
                 const SizedBox(height: 8),
                 _buildInfoRow("Hobi", "Bermain game FPS Ranked PEaK",
                     isLongText: true),
-
                 const SizedBox(height: 20),
                 const Divider(color: Colors.redAccent, thickness: 1),
               ],
@@ -175,21 +212,13 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  static Widget _buildInfoRow(String label, String value,
-      {bool isLongText = false}) {
+  static Widget _buildInfoRow(String label, String value, {bool isLongText = false}) {
     return Row(
-      crossAxisAlignment:
-          isLongText ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      crossAxisAlignment: isLongText ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         Expanded(
           flex: 2,
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-            ),
-          ),
+          child: Text(label, style: const TextStyle(color: Colors.white70, fontSize: 16)),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -197,11 +226,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
             softWrap: true,
           ),
         ),

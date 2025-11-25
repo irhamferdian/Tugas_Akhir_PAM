@@ -27,18 +27,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadUserData();
   }
 
+  // load username + profile image berdasarkan username
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedUsername = prefs.getString('username') ?? 'Pengguna Apex';
+    final savedImage = prefs.getString('profile_image_$savedUsername');
 
+    if (!mounted) return;
     setState(() {
-      username = prefs.getString('username') ?? 'Pengguna Apex';
-      profileImagePath = prefs.getString('profile_image'); // KEY BENAR
+      username = savedUsername;
+      profileImagePath = savedImage;
     });
   }
 
+  // logout: hapus data login saja, biarkan foto tersimpan
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+
+    // list key login yang ingin dihapus — sesuaikan jika ada key lain (token, isLoggedIn, dll)
+    await prefs.remove('username');
+    await prefs.remove('token'); // jika kamu punya token, hapus juga (ignor jika null)
+    // jangan hapus profile_image_<username> supaya foto tetap tersimpan per akun
 
     if (mounted) {
       Navigator.pushAndRemoveUntil(
@@ -125,7 +134,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               currentAccountPicture: CircleAvatar(
                 backgroundImage: profileImagePath != null
                     ? FileImage(File(profileImagePath!))
-                    : const AssetImage('assets/images/aku.jpg'),
+                    : const AssetImage('assets/images/apex.png') as ImageProvider,
               ),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -139,13 +148,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               leading: const Icon(Icons.person, color: Colors.white),
               title: const Text("Profil Saya", style: TextStyle(color: Colors.white)),
               onTap: () async {
-                await Navigator.push(
+                // buka profile dan tunggu hasil; jika ada perubahan, reload data
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const ProfilePage()),
                 );
 
-                // setelah kembali dari ProfilePage → refresh foto
-                _loadUserData();
+                // jika ProfilePage mengembalikan true (artinya user mungkin mengubah foto) kita reload
+                if (result == true) {
+                  _loadUserData();
+                }
               },
             ),
             ListTile(
